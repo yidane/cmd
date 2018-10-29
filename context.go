@@ -193,4 +193,5 @@ func (ctx *Context) Once() error {
 	if ctx.lastError != nil {
 		fmt.Println(ctx.lastError)
 	}
+	return ctx.lastError
 }

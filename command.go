@@ -12,8 +12,14 @@ type Command interface {
 	Usage() string
 }
 
+type CommandGroup interface {
+	Group() string
+}
+
+//TODO:change the data store type so that can query by difference way
 var (
 	commands  = make(map[string]*Command)
+	groups    = make(map[string]string)
 	commandMu sync.RWMutex
 )
 
