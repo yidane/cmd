@@ -1,4 +1,4 @@
-package main
+package cmd
 
 type AddCommand struct {
 }
