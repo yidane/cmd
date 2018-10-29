@@ -188,5 +188,9 @@ func (ctx *Context) Start() error {
 
 func (ctx *Context) Once() error {
 	ctx.parse(os.Args[1:])
-	return nil
+	ctx.exec()
+
+	if ctx.lastError != nil {
+		fmt.Println(ctx.lastError)
+	}
 }
