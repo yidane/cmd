@@ -14,7 +14,7 @@ type Context struct {
 	programName string
 	commandName string
 	running     bool
-	args        map[string]*Arg
+	Args        map[string]*Arg
 	reader      *bufio.Reader
 	lastError   error
 	BeforeExit  func()
@@ -24,7 +24,7 @@ func NewContext() *Context {
 	return &Context{
 		programName: os.Args[0],
 		running:     false,
-		args:        make(map[string]*Arg),
+		Args:        make(map[string]*Arg),
 	}
 }
 
@@ -39,7 +39,7 @@ func (ctx *Context) GetProgramName() string {
 }
 
 func (ctx *Context) resetArgs() {
-	ctx.args = make(map[string]*Arg)
+	ctx.Args = make(map[string]*Arg)
 	ctx.commandName = ""
 }
 
@@ -103,12 +103,12 @@ func (ctx *Context) parse(args []string) {
 			}
 		}
 
-		if _, ok := ctx.args[k]; ok {
+		if _, ok := ctx.Args[k]; ok {
 			ctx.lastError = fmt.Errorf("")
 			return
 		}
 		newArg := Arg(v)
-		ctx.args[k] = &newArg
+		ctx.Args[k] = &newArg
 	}
 }
 
@@ -149,8 +149,8 @@ func (ctx *Context) exec() {
 
 	defer ctx.recover()
 
-	command, ok := commands[ctx.commandName]
-	if !ok {
+	command, exists := fetchCommand(ctx.commandName)
+	if !exists {
 		ctx.lastError = fmt.Errorf("'%s' is not a command", ctx.commandName)
 		return
 	}

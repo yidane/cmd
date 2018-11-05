@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"sync"
 )
 
@@ -32,7 +33,7 @@ func Register(command Command) {
 		panic("argument command can not be nil")
 	}
 
-	name := command.Name()
+	name := strings.ToLower(command.Name())
 	c, ok := commands[name]
 	if ok {
 		type0 := reflect.ValueOf(command).Type()
@@ -42,5 +43,11 @@ func Register(command Command) {
 		}
 	}
 
-	commands[command.Name()] = &command
+	commands[name] = &command
+}
+
+func fetchCommand(commandName string) (command *Command, exists bool) {
+	commandName = strings.ToLower(commandName)
+	command, exists = commands[commandName]
+	return
 }

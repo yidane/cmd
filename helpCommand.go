@@ -10,12 +10,11 @@ func (HelpCommand) Name() string {
 }
 
 func (HelpCommand) Exec(ctx *Context) error {
-	if len(ctx.args) != 0 {
-
+	if len(ctx.Args) != 0 {
 	}
 
 	for _, command := range commands {
-		fmt.Println((*command).Usage())
+		fmt.Println("  ", (*command).Usage())
 	}
 
 	return nil
