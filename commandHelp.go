@@ -1,6 +1,8 @@
 package cmd
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type HelpCommand struct {
 }
@@ -13,9 +15,9 @@ func (HelpCommand) Exec(ctx *Context) error {
 	if len(ctx.Args) != 0 {
 	}
 
-	for _, command := range commands {
-		fmt.Println("  ", (*command).Usage())
-	}
+	ctx.EachCommand(func(c *Command) {
+		fmt.Println("  ", (*c).Usage())
+	})
 
 	return nil
 }

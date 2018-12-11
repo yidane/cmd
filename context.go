@@ -28,6 +28,16 @@ func NewContext() *Context {
 	}
 }
 
+func (ctx *Context) Stop() {
+	ctx.running = false
+}
+
+func (ctx *Context) EachCommand(f func(command *Command)) {
+	for _, c := range commands {
+		f(c)
+	}
+}
+
 func (ctx *Context) SetProgramName(name string) {
 	if strings.TrimSpace(name) != "" {
 		ctx.programName = name

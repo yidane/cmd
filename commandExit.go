@@ -8,7 +8,7 @@ func (ExitCommand) Name() string {
 }
 
 func (ExitCommand) Exec(ctx *Context) error {
-	ctx.running = false
+	ctx.Stop()
 	return nil
 }
 
