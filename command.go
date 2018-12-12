@@ -13,41 +13,79 @@ type Command interface {
 	Usage() string
 }
 
-type CommandGroup interface {
-	Group() string
+type CommandParse struct {
+	command *Command
+	parse   *Parse
 }
 
-//TODO:change the data store type so that can query by difference way
+func (commandParse *CommandParse) ParseArg(arg string) ([]*Arg, error) {
+	return (*commandParse.parse).ParseArg(arg)
+}
+
+func (commandParse *CommandParse) Name() string {
+	return (*commandParse.command).Name()
+}
+
+func (commandParse *CommandParse) Exec(ctx *Context) error {
+	return (*commandParse.command).Exec(ctx)
+}
+
+func (commandParse *CommandParse) Usage() string {
+	return (*commandParse.command).Usage()
+}
+
+var defaultParse Parse = DefaultParse{}
 var (
-	commands  = make(map[string]*Command)
-	groups    = make(map[string]string)
+	commands  = make(map[string]*CommandParse) //TODO:change the data store type so that can query by difference way
 	commandMu sync.RWMutex
 )
 
 //Register is called when package init
 func Register(command Command) {
+	if command == nil {
+		panic("argument command could not be nil")
+	}
+
 	commandMu.Lock()
 	defer commandMu.Unlock()
 
-	if command == nil {
-		panic("argument command can not be nil")
-	}
-
 	name := strings.ToLower(command.Name())
-	c, ok := commands[name]
-	if ok {
-		type0 := reflect.ValueOf(command).Type()
-		type1 := reflect.ValueOf(c).Type()
-		if type0 != type1 {
-			panic(fmt.Sprint("Command ", name, " complected"))
-		}
+	if containCommand(&command) {
+		panic(fmt.Errorf("command '%s' contained", name))
 	}
 
-	commands[name] = &command
+	var commandParse CommandParse
+	commandParse.command = &command
+
+	if parse, ok := command.(Parse); ok {
+		commandParse.parse = &parse
+	} else {
+		commandParse.parse = &defaultParse
+	}
+
+	commands[name] = &commandParse
 }
 
-func fetchCommand(commandName string) (command *Command, exists bool) {
-	commandName = strings.ToLower(commandName)
-	command, exists = commands[commandName]
+func GetCommand(name string) (commandParse *CommandParse, err error) {
+	name = strings.ToLower(name)
+	commandParse, ok := commands[name]
+	if !ok {
+		err = fmt.Errorf("command '%s' not found", name)
+	}
 	return
+}
+
+func containCommand(command *Command) bool {
+	if command == nil {
+		return false
+	}
+	name := strings.ToLower((*command).Name())
+	storedCommand, err := GetCommand(name)
+	if err == nil {
+		type0 := reflect.ValueOf(command).Type()
+		type1 := reflect.ValueOf(storedCommand).Type()
+		return type0 == type1
+	}
+
+	return false
 }
