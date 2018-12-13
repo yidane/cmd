@@ -26,7 +26,9 @@ func NewContext() *Context {
 }
 
 func (ctx *Context) Wait() {
-	fmt.Print(prefix)
+	if ctx.option.Running() {
+		fmt.Print(prefix)
+	}
 }
 
 func (ctx *Context) Stop() {

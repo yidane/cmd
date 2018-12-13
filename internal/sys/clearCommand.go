@@ -17,9 +17,9 @@ func (c *ClearCommand) Exec(ctx *opt.ContextOption) error {
 	var cmd *exec.Cmd
 	switch ctx.OS {
 	case "windows":
-		cmd = exec.Command("clear")
-	default:
 		cmd = exec.Command("cls")
+	default:
+		cmd = exec.Command("clear")
 	}
 
 	cmd.Stdout = os.Stdout

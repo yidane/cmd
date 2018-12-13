@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/yidane/cmd/internal"
 	"github.com/yidane/cmd/internal/sys"
 	"github.com/yidane/cmd/opt"
-	"os"
 )
 
 //Register is called when package init
@@ -23,7 +24,6 @@ func init() {
 func EachCommand(f func(command *opt.Command)) {
 	internal.EachCommand(f)
 }
-
 
 func getProgramName(name string) string {
 	for i := len(name) - 1; i >= 0; i-- {

@@ -10,11 +10,11 @@ var x = runtime.GOOS != "windows"
 
 func Errorf(format string, a ...interface{}) {
 	if x {
-		color.Red(format, a)
+		color.Red(format, a...)
 		return
 	}
 
-	fmt.Println(color.Output, color.RedString(format, a))
+	fmt.Println(color.Output, color.RedString(format, a...))
 }
 
 func Error(err error) {
@@ -27,16 +27,16 @@ func Error(err error) {
 
 func Succeed(format string, a ...interface{}) {
 	if x {
-		color.Green(format, a)
+		color.Blue(format, a...)
 		return
 	}
 
-	fmt.Println(color.Output, color.GreenString(format, a))
+	fmt.Println(color.Output, color.BlueString(format, a...))
 }
 
 func Warn(format string, a ...interface{}) {
 	if x {
-		color.Yellow(format, a)
+		color.Yellow(format, a...)
 		return
 	}
 
@@ -44,9 +44,9 @@ func Warn(format string, a ...interface{}) {
 }
 
 func Println(a ...interface{}) {
-	fmt.Println(a)
+	fmt.Println(a...)
 }
 
 func Print(a ...interface{}) {
-	fmt.Print(a)
+	fmt.Print(a...)
 }
