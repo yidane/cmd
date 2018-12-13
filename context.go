@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"bufio"
-	"github.com/yidane/cmd/fmt"
 	"github.com/yidane/cmd/internal"
 	"github.com/yidane/cmd/opt"
+	"github.com/yidane/cmd/pt"
 	"io"
 	"os"
 	"strings"
@@ -27,7 +27,7 @@ func NewContext() *Context {
 
 func (ctx *Context) Wait() {
 	if ctx.option.Running() {
-		fmt.Print(prefix)
+		pt.Print(prefix)
 	}
 }
 
@@ -131,7 +131,7 @@ func (ctx *Context) readCommand() bool {
 
 func (ctx *Context) handError() {
 	if ctx.lastError != nil {
-		fmt.Error(ctx.lastError)
+		pt.Error(ctx.lastError)
 		ctx.lastError = nil
 	}
 }

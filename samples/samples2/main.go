@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/yidane/cmd"
-	"github.com/yidane/cmd/fmt"
+	"github.com/yidane/cmd/pt"
 	"github.com/yidane/cmd/opt"
 	"strings"
 )
