@@ -1,6 +1,8 @@
-package cmd
+package internal
 
 import (
+	"github.com/yidane/cmd"
+	"github.com/yidane/cmd/opt"
 	"os"
 	"os/exec"
 )
@@ -19,7 +21,7 @@ func (c *ClearCommand) Name() string {
 }
 
 //TODO:should support windows and mac
-func (c *ClearCommand) Exec(ctx *Context) error {
+func (c *ClearCommand) Exec(ctx *opt.ContextOption) error {
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	return cmd.Run()
@@ -30,5 +32,5 @@ func (c *ClearCommand) Usage() string {
 }
 
 func init() {
-	Register(&ClearCommand{})
+	cmd.Register(&ClearCommand{})
 }
