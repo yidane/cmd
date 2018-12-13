@@ -1,8 +1,7 @@
-package cmd
+package internal
 
 import (
 	"fmt"
-	"github.com/yidane/cmd/internal"
 	"github.com/yidane/cmd/opt"
 	"reflect"
 	"strings"
@@ -30,7 +29,7 @@ func (commandParse *CommandParse) Usage() string {
 	return (*commandParse.command).Usage()
 }
 
-var defaultParse opt.Parse = internal.DefaultParse{}
+var defaultParse opt.Parse = DefaultParse{}
 var (
 	commands  = make(map[string]*CommandParse) //TODO:change the data store type so that can query by difference way
 	commandMu sync.RWMutex
@@ -56,26 +55,6 @@ func Register(command opt.Command) {
 	if parse, ok := command.(opt.Parse); ok {
 		commandParse.parse = &parse
 	} else {
-		if command == nil {
-			panic("argument command could not be nil")
-		}
-
-		name := strings.ToLower(command.Name())
-		if containCommand(&command) {
-			panic(fmt.Errorf("command '%s' contained", name))
-		}
-
-		var commandParse CommandParse
-		commandParse.command = &command
-
-		if parse, ok := command.(opt.Parse); ok {
-			commandParse.parse = &parse
-		} else {
-			commandParse.parse = &defaultParse
-		}
-
-		commands[name] = &commandParse
-
 		commandParse.parse = &defaultParse
 	}
 
@@ -85,9 +64,11 @@ func Register(command opt.Command) {
 func GetCommand(name string) (commandParse *CommandParse, err error) {
 	name = strings.ToLower(name)
 	commandParse, ok := commands[name]
-	if !ok {
-		err = fmt.Errorf("command '%s' not found", name)
+	if ok {
+		return
 	}
+
+	err = fmt.Errorf("command '%s' not found", name)
 	return
 }
 

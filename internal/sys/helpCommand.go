@@ -1,7 +1,9 @@
-package internal
+package sys
 
 import (
-	"fmt"
+	"github.com/yidane/cmd/fmt"
+	"github.com/yidane/cmd/internal"
+	"github.com/yidane/cmd/opt"
 )
 
 type HelpCommand struct {
@@ -11,11 +13,11 @@ func (HelpCommand) Name() string {
 	return "help"
 }
 
-func (HelpCommand) Exec(ctx *Context) error {
+func (HelpCommand) Exec(ctx *opt.ContextOption) error {
 	if len(ctx.Args) != 0 {
 	}
 
-	ctx.EachCommand(func(c *Command) {
+	internal.EachCommand(func(c *opt.Command) {
 		fmt.Println("  ", (*c).Usage())
 	})
 
@@ -24,8 +26,4 @@ func (HelpCommand) Exec(ctx *Context) error {
 
 func (HelpCommand) Usage() string {
 	return "help or help command"
-}
-
-func init() {
-	Register(HelpCommand{})
 }

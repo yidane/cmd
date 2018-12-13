@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/yidane/cmd/fmt"
+	"github.com/yidane/cmd/internal"
+	"github.com/yidane/cmd/opt"
 	"io"
 	"os"
 	"strings"
@@ -11,47 +13,39 @@ import (
 const prefix = " > "
 
 type Context struct {
-	programName   string
-	commandName   string
-	running       bool
-	Args          []*Arg
-	reader        *bufio.Reader
-	lastError     error
-	commandString string
-	BeforeExit    func()
+	option     *opt.ContextOption
+	reader     *bufio.Reader
+	lastError  error
+	BeforeExit func()
 }
 
 func NewContext() *Context {
 	return &Context{
-		programName: os.Args[0],
-		running:     false,
-		Args:        []*Arg{},
+		option: opt.NewContextOption(),
 	}
+}
+
+func (ctx *Context) Wait() {
+	fmt.Print(prefix)
 }
 
 func (ctx *Context) Stop() {
-	ctx.running = false
-}
-
-func (ctx *Context) EachCommand(f func(command *Command)) {
-	for _, c := range commands {
-		f(c.command)
-	}
+	ctx.option.Stop()
 }
 
 func (ctx *Context) SetProgramName(name string) {
 	if strings.TrimSpace(name) != "" {
-		ctx.programName = name
+		ctx.option.ProgramName = name
 	}
 }
 
 func (ctx *Context) GetProgramName() string {
-	return ctx.programName
+	return ctx.option.ProgramName
 }
 
 func (ctx *Context) reset() {
-	ctx.Args = []*Arg{}
-	ctx.commandName = ""
+	ctx.option.Args = []*opt.Arg{}
+	ctx.option.CommandName = ""
 }
 
 func (ctx *Context) recover() {
@@ -62,7 +56,7 @@ func (ctx *Context) recover() {
 	case error:
 		ctx.lastError = err.(error)
 	default:
-		fmt.Println(err)
+		panic(err) //who is it
 	}
 }
 
@@ -79,27 +73,34 @@ func (ctx *Context) exec() {
 
 	defer ctx.recover()
 
-	command, err := GetCommand(ctx.commandName)
+	command, err := internal.GetCommand(ctx.option.CommandName)
 	if err != nil {
 		ctx.lastError = err
 		return
 	}
 
-	ctx.Args, ctx.lastError = command.ParseArg(ctx.commandString)
+	ctx.option.Args, ctx.lastError = command.ParseArg(ctx.option.CommandString)
 	if ctx.lastError != nil {
 		return
 	}
-	ctx.lastError = command.Exec(ctx)
+	ctx.lastError = command.Exec(ctx.option)
 }
 
 func (ctx *Context) readCommand() bool {
+	ctx.option.CommandName = ""
+	ctx.option.CommandString = ""
+
 	if ctx.lastError != nil {
 		return false
 	}
 
+	//if only run once,the reader is nil
 	if ctx.reader == nil {
-		ctx.commandString = strings.Join(os.Args[1:], " ")
-		return false
+		if len(os.Args) > 1 {
+			ctx.option.CommandName = os.Args[1]
+		}
+		ctx.option.CommandString = strings.Join(os.Args[1:], " ")
+		return true
 	}
 
 	input, _, err := ctx.reader.ReadLine()
@@ -111,29 +112,42 @@ func (ctx *Context) readCommand() bool {
 		return false
 	}
 
-	ctx.commandString = string(input)
+	inputString := string(input)
+	if len(strings.TrimSpace(inputString)) == 0 {
+		return false
+	}
 
-	return false
+	if spaceIndex := strings.Index(inputString, " "); spaceIndex > 0 {
+		ctx.option.CommandName = inputString[:spaceIndex]
+		ctx.option.CommandString = inputString[spaceIndex:]
+	} else {
+		ctx.option.CommandName = inputString
+	}
+
+	return true
+}
+
+func (ctx *Context) handError() {
+	if ctx.lastError != nil {
+		fmt.Error(ctx.lastError)
+		ctx.lastError = nil
+	}
 }
 
 func (ctx *Context) Start() error {
 	defer ctx.recover()
 	defer ctx.beforeExit()
 
-	ctx.running = true
+	ctx.option.Start()
 	ctx.reader = bufio.NewReader(os.Stdin)
-	fmt.Print(prefix)
-	for ctx.running {
+	ctx.Wait()
+	for ctx.option.Running() {
 		if ctx.readCommand() {
 			ctx.exec()
 		}
 
-		if ctx.lastError != nil {
-			fmt.Println(ctx.lastError)
-			ctx.lastError = nil
-		}
-
-		fmt.Print(prefix)
+		ctx.handError()
+		ctx.Wait()
 	}
 
 	return ctx.lastError

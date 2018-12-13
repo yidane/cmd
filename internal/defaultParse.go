@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-type Parse interface {
-	ParseArg(arg string) (args []*opt.Arg, err error)
-}
-
 type DefaultParse struct {
 }
 

@@ -43,6 +43,10 @@ func Warn(format string, a ...interface{}) {
 	fmt.Println(color.Output, color.YellowString(format, a))
 }
 
-func Info(format string, a ...interface{}) {
-	fmt.Println(format, a)
+func Println(a ...interface{}) {
+	fmt.Println(a)
+}
+
+func Print(a ...interface{}) {
+	fmt.Print(a)
 }
