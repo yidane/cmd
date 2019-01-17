@@ -6,17 +6,29 @@ import (
 )
 
 type Arg struct {
-	Index int
-	Key   string
-	Value string
+	index int
+	key   string
+	value string
 }
 
 func NewArg(index int, k, v string) *Arg {
 	arg := new(Arg)
-	arg.Index = index
-	arg.Key = k
-	arg.Value = v
+	arg.index = index
+	arg.key = strings.ToLower(k)
+	arg.value = v
 	return arg
+}
+
+func (arg *Arg) Index() int {
+	return arg.index
+}
+
+func (arg *Arg) Key() string {
+	return arg.key
+}
+
+func (arg *Arg) Value() string {
+	return arg.value
 }
 
 func (arg *Arg) Int() (int, error) {
@@ -36,5 +48,5 @@ func (arg *Arg) Float64() (float64, error) {
 }
 
 func (arg *Arg) String() string {
-	return string(arg.Value)
+	return strings.TrimSpace(arg.value)
 }

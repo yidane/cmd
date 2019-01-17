@@ -2,6 +2,7 @@ package opt
 
 import (
 	"runtime"
+	"strings"
 )
 
 type Command interface {
@@ -21,6 +22,32 @@ type ContextOption struct {
 	running       bool
 	Args          []*Arg
 	CommandString string
+}
+
+func (option *ContextOption) GetArg(name string) (arg *Arg, flag bool) {
+	name = strings.ToLower(name)
+	for _, v := range option.Args {
+		if v.Key() == name {
+			arg = v
+			flag = true
+			return
+		}
+	}
+
+	return
+}
+
+func (option *ContextOption) GetArgs(name string) (args []*Arg, flag bool) {
+	name = strings.ToLower(name)
+	args = make([]*Arg, 0)
+	for _, v := range option.Args {
+		if v.Key() == name {
+			args = append(args, v)
+			flag = true
+		}
+	}
+
+	return
 }
 
 func NewContextOption() *ContextOption {

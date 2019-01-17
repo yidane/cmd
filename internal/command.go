@@ -61,14 +61,9 @@ func Register(command opt.Command) {
 	commands[name] = &commandParse
 }
 
-func GetCommand(name string) (commandParse *CommandParse, err error) {
+func GetCommand(name string) (commandParse *CommandParse, exists bool) {
 	name = strings.ToLower(name)
-	commandParse, ok := commands[name]
-	if ok {
-		return
-	}
-
-	err = fmt.Errorf("command '%s' not found", name)
+	commandParse, exists = commands[name]
 	return
 }
 
@@ -77,8 +72,8 @@ func containCommand(command *opt.Command) bool {
 		return false
 	}
 	name := strings.ToLower((*command).Name())
-	storedCommand, err := GetCommand(name)
-	if err == nil {
+	storedCommand, exists := GetCommand(name)
+	if exists {
 		type0 := reflect.ValueOf(command).Type()
 		type1 := reflect.ValueOf(storedCommand).Type()
 		return type0 == type1

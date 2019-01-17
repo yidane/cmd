@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/yidane/cmd/internal"
 	"github.com/yidane/cmd/opt"
 	"github.com/yidane/cmd/pt"
@@ -75,9 +76,9 @@ func (ctx *Context) exec() {
 
 	defer ctx.recover()
 
-	command, err := internal.GetCommand(ctx.option.CommandName)
-	if err != nil {
-		ctx.lastError = err
+	command, exists := internal.GetCommand(ctx.option.CommandName)
+	if !exists {
+		ctx.lastError = fmt.Errorf("command %s missed", ctx.option.CommandName)
 		return
 	}
 
@@ -99,7 +100,14 @@ func (ctx *Context) readCommand() bool {
 	//if only run once,the reader is nil
 	if ctx.reader == nil {
 		if len(os.Args) > 1 {
-			ctx.option.CommandName = os.Args[1]
+			cmdName := os.Args[1]
+			if _, exists := internal.GetCommand(cmdName); exists {
+				ctx.option.CommandName = os.Args[1]
+			} else {
+				if _, exists := internal.GetCommand(""); !exists {
+					ctx.lastError = fmt.Errorf("command %s missed and space command missed", cmdName)
+				}
+			}
 		}
 		ctx.option.CommandString = strings.Join(os.Args[1:], " ")
 		return true
