@@ -17,7 +17,7 @@ func (DefaultParse) ParseArg(arg string) (args []*opt.Arg, err error) {
 
 	argArr := strings.Split(arg, " ")
 
-	for i := 1; i < len(args); i++ {
+	for i := 1; i < len(argArr); i++ {
 		arg := strings.TrimSpace(argArr[i])
 		switch len(arg) {
 		case 0:

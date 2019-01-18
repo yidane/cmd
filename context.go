@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/yidane/cmd/internal"
+	"github.com/yidane/cmd/internal/log"
 	"github.com/yidane/cmd/opt"
-	"github.com/yidane/cmd/pt"
 	"io"
 	"os"
 	"strings"
@@ -17,18 +17,24 @@ type Context struct {
 	option     *opt.ContextOption
 	reader     *bufio.Reader
 	lastError  error
+	log        log.Log
 	BeforeExit func()
 }
 
 func NewContext() *Context {
 	return &Context{
+		log:    log.GetLogger(),
 		option: opt.NewContextOption(),
 	}
 }
 
+func (ctx *Context) GetLogger() log.Log {
+	return ctx.log
+}
+
 func (ctx *Context) Wait() {
 	if ctx.option.Running() {
-		pt.Print(prefix)
+		ctx.log.Print(prefix)
 	}
 }
 
@@ -139,7 +145,7 @@ func (ctx *Context) readCommand() bool {
 
 func (ctx *Context) handError() {
 	if ctx.lastError != nil {
-		pt.Error(ctx.lastError)
+		ctx.log.Error(ctx.lastError)
 		ctx.lastError = nil
 	}
 }

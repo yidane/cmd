@@ -3,7 +3,7 @@ package sys
 import (
 	"github.com/yidane/cmd/internal"
 	"github.com/yidane/cmd/opt"
-	"github.com/yidane/cmd/pt"
+	"log"
 )
 
 type HelpCommand struct {
@@ -18,7 +18,7 @@ func (HelpCommand) Exec(ctx *opt.ContextOption) error {
 	}
 
 	internal.EachCommand(func(c *opt.Command) {
-		pt.Println("  ", (*c).Usage())
+		log.Println("  ", (*c).Usage())
 	})
 
 	return nil
